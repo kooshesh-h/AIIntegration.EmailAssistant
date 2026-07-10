@@ -1,3 +1,8 @@
 <Solution>
-  <Project Path="AIIntegration.EmailAssistant.Api/AIIntegration.EmailAssistant.Api.csproj" />
+  <Folder Name="/src/">
+    <Project Path="AIIntegration.EmailAssistant.Api/AIIntegration.EmailAssistant.Api.csproj" />
+    <Project Path="AIIntegration.EmailAssistant.Application/AIIntegration.EmailAssistant.Application.csproj" />
+    <Project Path="AIIntegration.EmailAssistant.Domain/AIIntegration.EmailAssistant.Domain.csproj" />
+    <Project Path="AIIntegration.EmailAssistant.Infrastructure/AIIntegration.EmailAssistant.Infrastructure.csproj" />
+  </Folder>
 </Solution>
