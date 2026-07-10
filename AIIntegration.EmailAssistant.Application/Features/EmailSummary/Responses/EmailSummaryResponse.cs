@@ -6,5 +6,12 @@ namespace AIIntegration.EmailAssistant.Application.Features.EmailSummary.Respons
 {
     internal class EmailSummaryResponse
     {
+        public string Summary { get; init; } = string.Empty;
+
+        public IReadOnlyList<string> ActionItems { get; init; } = [];
+
+        public string? Deadline { get; init; }
+
+        public string SuggestedReply { get; init; } = string.Empty;
     }
 }
