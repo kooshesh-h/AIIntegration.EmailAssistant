@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AIIntegration.EmailAssistant.Application.Features.EmailSummary.Responses
 {
-    internal class EmailSummaryResponse
+    public sealed class EmailSummaryResponse
     {
         public string Summary { get; init; } = string.Empty;
 

@@ -1,3 +1,7 @@
+using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Builder;
+using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Interfaces;
+using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Services;
+
 
 namespace AIIntegration.EmailAssistant.Api
 {
@@ -10,12 +14,25 @@ namespace AIIntegration.EmailAssistant.Api
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
             builder.Services.AddOpenApi();
+
+            builder.Services.AddScoped<IEmailSummaryPromptBuilder, EmailSummaryPromptBuilder>();
+            builder.Services.AddScoped<IEmailSummaryService, EmailSummaryService>();
+
+            //Swagger
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
