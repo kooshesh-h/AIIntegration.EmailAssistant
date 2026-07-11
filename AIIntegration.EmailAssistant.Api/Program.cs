@@ -1,6 +1,7 @@
 using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Builder;
 using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Interfaces;
 using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Services;
+using AIIntegration.EmailAssistant.Api.Middlewares;
 
 
 namespace AIIntegration.EmailAssistant.Api
@@ -42,6 +43,12 @@ namespace AIIntegration.EmailAssistant.Api
 
             app.UseAuthorization();
 
+            // Middleware exception
+            app.UseHttpsRedirection();
+
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+
+            app.MapControllers();
 
             app.MapControllers();
 
