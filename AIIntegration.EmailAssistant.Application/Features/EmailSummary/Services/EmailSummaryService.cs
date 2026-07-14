@@ -1,55 +1,70 @@
-﻿using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Interfaces;
+﻿using System.Text.Json;
+using AIIntegration.EmailAssistant.Application.Common.AI;
+using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Interfaces;
 using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Requests;
 using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Responses;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace AIIntegration.EmailAssistant.Application.Features.EmailSummary.Services
+namespace AIIntegration.EmailAssistant.Application.Features.EmailSummary.Services;
+
+public sealed class EmailSummaryService : IEmailSummaryService
 {
-    public sealed class EmailSummaryService : IEmailSummaryService
+    private readonly IEmailSummaryPromptBuilder _promptBuilder;
+    private readonly IAiServiceClient _aiServiceClient;
+    private readonly ILogger<EmailSummaryService> _logger;
+
+    public EmailSummaryService(
+        IEmailSummaryPromptBuilder promptBuilder,
+        IAiServiceClient aiServiceClient,
+        ILogger<EmailSummaryService> logger)
     {
-        private readonly IEmailSummaryPromptBuilder _promptBuilder;
-        private readonly ILogger<EmailSummaryService> _logger;
+        _promptBuilder = promptBuilder;
+        _aiServiceClient = aiServiceClient;
+        _logger = logger;
+    }
 
-        public EmailSummaryService(
-            IEmailSummaryPromptBuilder promptBuilder, ILogger<EmailSummaryService> logger)
-        {
-            _promptBuilder = promptBuilder;
-            _logger = logger;
-        }
+    public async Task<EmailSummaryResponse> SummarizeAsync(
+        EmailSummaryRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
 
-        public Task<EmailSummaryResponse> SummarizeAsync(
-            EmailSummaryRequest request,
-            CancellationToken cancellationToken = default)
-        {
-            _logger.LogInformation("Starting email summarization.");
-            ArgumentNullException.ThrowIfNull(request);
+        _logger.LogInformation(
+            "Starting email summarization. Language: {Language}, Tone: {Tone}, MaxWords: {MaxWords}",
+            request.Language,
+            request.Tone,
+            request.MaxSummaryWords);
 
-            var prompt = _promptBuilder.Build(request);
-            
-            _logger.LogInformation("Prompt built successfully.");
+        var prompt = _promptBuilder.Build(request);
 
-            var response = new EmailSummaryResponse
+        _logger.LogInformation("Prompt built successfully.");
+
+        var aiResponse = await _aiServiceClient.GenerateTextAsync(
+            new TextGenerationRequest
             {
-                Summary = "Mock summary generated successfully.",
+                Prompt = prompt
+            },
+            cancellationToken);
 
-                ActionItems =
-                [
-                    "Mock Action Item 1",
-                    "Mock Action Item 2"
-                ],
+        _logger.LogInformation(
+            "AI Microservice response received successfully.");
 
-                Deadline = "Friday",
+        var result = JsonSerializer.Deserialize<EmailSummaryResponse>(
+            aiResponse.Content,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
 
-                SuggestedReply =
-                    "Thank you for your email. I will review it and get back to you soon."
-            };
-
-            _logger.LogInformation("Returning mock AI response.");
-
-            return Task.FromResult(response);
+        if (result is null)
+        {
+            throw new InvalidOperationException(
+                "The AI Microservice returned an invalid email summary response.");
         }
+
+        _logger.LogInformation(
+            "Email summarization completed successfully.");
+
+        return result;
     }
 }

@@ -1,7 +1,9 @@
+using AIIntegration.EmailAssistant.Api.Middlewares;
 using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Builder;
 using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Interfaces;
 using AIIntegration.EmailAssistant.Application.Features.EmailSummary.Services;
-using AIIntegration.EmailAssistant.Api.Middlewares;
+using AIIntegration.EmailAssistant.Infrastructure.Clients;
+using AIIntegration.EmailAssistant.Application.Common.AI;
 
 
 namespace AIIntegration.EmailAssistant.Api
@@ -13,6 +15,12 @@ namespace AIIntegration.EmailAssistant.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            builder.Services.AddHttpClient<IAiServiceClient, AiServiceClient>(client =>
+            {
+                client.BaseAddress = new Uri(
+                    builder.Configuration["AiMicroservice:BaseUrl"]!);
+            });
 
             builder.Services.AddControllers();
 
